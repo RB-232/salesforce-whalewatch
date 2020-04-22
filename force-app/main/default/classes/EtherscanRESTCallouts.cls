@@ -76,7 +76,7 @@ public class EtherscanRESTCallouts {
 
             if(!accountsToUpsert.isEmpty()) {
                 try {
-                    upsert accountBalance;
+                    upsert accountsToUpsert;
                 } catch (DMLException e) {
                     ApexPages.addMessages(e);
 
