@@ -3,9 +3,9 @@ public class EtherscanRESTCallouts {
     private static final API_Token__mdt apiRecord = [SELECT API_Token__c, MasterLabel FROM API_Token__mdt WHERE MasterLabel = 'Etherscan' WITH SECURITY_ENFORCED];
 
     private static final String SINGLE_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balance&' + 
-                                                        'address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a&tag=latest&apikey=' + apiRecord.API_Token__c;
+                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5&tag=latest&apikey=' + apiRecord.API_Token__c;
     private static final String MULTI_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balancemulti&' + 
-                                                        'address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a,0x63a9975ba31b0b9626b34300f7f627147df1f526,0x198ef1ec325a96cc354c7266a038be8b5c558f67&tag=latest&apikey=' + apiRecord.API_Token__c;                                                    
+                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5,0x1b3cb81e51011b549d78bf720b0d924ac763a7c2,0x73bceb1cd57c711feac4224d062b0f6ff338501e&tag=latest&apikey=' + apiRecord.API_Token__c;                                                    
                                                         
     @future(callout=true)
     public static void singleAccountBalance() {
@@ -25,7 +25,7 @@ public class EtherscanRESTCallouts {
 
             Integer balance = Integer.valueOf(balanceString);
 
-            Account accountBalance = new Account(Account_Balance__c = balance, Name='0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a');
+            Account accountBalance = new Account(Account_Balance__c = balance, Name='0x267f70f9b856de226fea5fc1b0a8e319c72ceff5');
 
             if(accountBalance != null) {
                 try {
@@ -58,18 +58,17 @@ public class EtherscanRESTCallouts {
         HttpResponse response = http.send(request);
         // Parse the JSON response
         if (response.getStatusCode() == 200) {
-            List<Object> results = (List<Object>) JSON.deserializeUntyped(response.getBody());
+            // Hoping there is a better way to do this than using Object everywhere
+            Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+            List<Object> accountBalanceList = (List<Object>) results.get('result');
             List<Account> accountsToUpsert = new List<Account>();
 
-            for(Object result : results) {
-                Map<String, Object> recordMap = (Map<String, Object>)result;
+            for(Object result : accountBalanceList) {
+                Map<String, Object> account = (Map<String, Object>) result;
+                String balanceString = (String) account.get('balance');
+                String accountNumberString = (String) account.get('account');
 
-                String balanceString = (String) recordMap.get('result');
-                balanceString = balanceString.substring(0, 6);
-
-                Integer balance = Integer.valueOf(balanceString);
-
-                Account accountBalance = new Account(Account_Balance__c = balance, Name='0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a');
+                Account accountBalance = new Account(Account_Balance_String__c = balanceString, Name=accountNumberString);
 
                 accountsToUpsert.add(accountBalance);
             }
