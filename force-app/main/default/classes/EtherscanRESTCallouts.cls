@@ -33,7 +33,7 @@ public class EtherscanRESTCallouts {
 
             Decimal ethBalance = toEth(balanceString);
 
-            Account accountBalance = new Account(Account_Balance__c = ethBalance, Name='0x267f70f9b856de226fea5fc1b0a8e319c72ceff5');
+            Account accountBalance = new Account(Account_Balance__c = ethBalance, Account_Balance_String__c = balanceString, Name='0x267f70f9b856de226fea5fc1b0a8e319c72ceff5');
 
             if(accountBalance != null) {
                 try {
@@ -76,9 +76,11 @@ public class EtherscanRESTCallouts {
                 Map<String, Object> account = (Map<String, Object>) result;
                 
                 String balanceString = (String) account.get('balance');
+                Decimal ethBalance = toEth(balanceString);
+
                 String accountNumberString = (String) account.get('account');
 
-                Account accountBalance = new Account(Account_Balance_String__c = balanceString, Name=accountNumberString);
+                Account accountBalance = new Account(Account_Balance__c = ethBalance, Account_Balance_String__c = balanceString, Name=accountNumberString);
 
                 accountsToUpsert.add(accountBalance);
             }
