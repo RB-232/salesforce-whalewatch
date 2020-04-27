@@ -126,13 +126,13 @@ public class EtherscanRESTCallouts {
                 Map<String, Object> account = (Map<String, Object>) result;
                 Opportunity opp = new Opportunity();
                 
-                String balanceString = (String) account.get('balance');
+                // String balanceString = (String) account.get('balance');
 
-                String accountNumberString = (String) account.get('account');
+                // String accountNumberString = (String) account.get('account');
 
-                Account accountBalance = new Account(Account_Balance_String__c = balanceString, Name=accountNumberString);
+                // Account accountBalance = new Account(Account_Balance_String__c = balanceString, Name=accountNumberString);
 
-                accountsToUpsert.add(accountBalance);
+                // accountsToUpsert.add(accountBalance);
             }
 
             if(!accountsToUpsert.isEmpty()) {
