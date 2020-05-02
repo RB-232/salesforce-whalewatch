@@ -1,0 +1,50 @@
+section{
+    position: relative;
+    min-height: 100vh;
+    padding-top: 3em;
+}
+
+section::before,
+section::after{
+    content: "";
+    position: absolute;
+    display: block;
+    width: 100%;
+    background-position: 0 0;
+}
+
+section::before{
+    top: 0;
+    height: 41px;
+    background-color: transparent;
+    background-size: 40px 40px;
+    background-image: 
+        linear-gradient(to right, grey 1px,
+        transparent 1px),
+        linear-gradient(to bottom, grey 1px,
+        transparent 1px);
+    background-position: 0 0;
+    animation: move 1.5s infinate linear;
+}
+
+section::after{
+    top: 25px;
+    left: 0;
+    height: 41px;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, black
+        1px, transparent 1px),
+        linear-gradient(to bottom, black,
+        1px, transparent 1px);
+    background-position: 0 0;
+    animation: move2 1s infinite linear;    
+}
+
+@keyframes move{
+    to{ background-position-x: 120px; }
+}
+
+@keyframes move2{
+    to{ background-position-x: -120px; }
+}
