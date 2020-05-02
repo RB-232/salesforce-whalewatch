@@ -1,0 +1,47 @@
+* {
+    margin: 0;
+    padding: 0;
+    /* Font-Family: 'Roboto', Sans-Serif;
+    Font-Size: 35px;
+    Font-Family: 'Droid Serif', Serif;
+    Font-Size: 15px; */
+}
+
+header {
+    Font-Family: 'Roboto', Sans-Serif;
+    Font-Size: 35px;
+    background-color: black;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+img {
+    margin: 0;
+    padding: 10px;
+    height: 5%;
+    width: 5%;
+}
+
+ul {
+    display: flex;
+    justify-content: space-around;
+}
+
+li {
+    border: 1px solid white;
+    color: white;
+    font-size: 1rem;
+    font-family: helvetica ;
+    font-weight: 100;
+    padding: .5rem;
+}
+
+.navlist {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    padding: 0;
+}
