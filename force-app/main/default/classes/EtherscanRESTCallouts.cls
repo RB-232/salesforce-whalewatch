@@ -1,14 +1,16 @@
 public class EtherscanRESTCallouts {
 
-    private static final API_Token__mdt apiRecord = [SELECT API_Token__c, MasterLabel FROM API_Token__mdt WHERE MasterLabel = 'Etherscan' WITH SECURITY_ENFORCED];
+    private static String accountAddress;
+
+    private static final API_Token__mdt API_RECORD = [SELECT API_Token__c, MasterLabel FROM API_Token__mdt WHERE MasterLabel = 'Etherscan' WITH SECURITY_ENFORCED];
 
     private static final String SINGLE_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balance&' + 
-                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5&tag=latest&apikey=' + apiRecord.API_Token__c;
+                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5&tag=latest&apikey=' + API_RECORD.API_Token__c;
     private static final String MULTI_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balancemulti&' + 
-                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5,0x1b3cb81e51011b549d78bf720b0d924ac763a7c2,0x73bceb1cd57c711feac4224d062b0f6ff338501e&tag=latest&apikey=' + apiRecord.API_Token__c;                                                    
+                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5,0x1b3cb81e51011b549d78bf720b0d924ac763a7c2,0x73bceb1cd57c711feac4224d062b0f6ff338501e&tag=latest&apikey=' + API_RECORD.API_Token__c;                                                    
     private static final String ACCOUNT_TRANSACTIONS = 'https://api.etherscan.io/api?module=account&action=txlist&' + 
-                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5&startblock=0&endblock=99999999&sort=asc&apikey=' + apiRecord.API_Token__c;                                                    
-    
+                                                        'address=' + accountAddress + '&startblock=0&endblock=99999999&sort=asc&apikey=' + API_RECORD.API_Token__c;                                                    
+
     private static Decimal toEth(String wei) {
         Decimal ethAmount = Decimal.valueOf(wei).divide(10^18, 2, System.RoundingMode.UP);
 
@@ -108,7 +110,8 @@ public class EtherscanRESTCallouts {
     }
 
     @future(callout=true)
-    public static void accountTransactions() {
+    public static void accountTransactions(String accountNumber) {
+        accountAddress = accountNumber;
         Http http = new Http();
         HttpRequest request = new HttpRequest();
         request.setEndpoint(ACCOUNT_TRANSACTIONS);
@@ -120,24 +123,36 @@ public class EtherscanRESTCallouts {
             // Hoping there is a better way to do this than using Object everywhere
             Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
             List<Object> accountTransactionList = (List<Object>) results.get('result');
-            List<Account> accountsToUpsert = new List<Account>();
+            List<Opportunity> opportunitiesToInsert = new List<Opportunity>();
 
             for(Object result : accountTransactionList) {
-                Map<String, Object> account = (Map<String, Object>) result;
+                Map<String, String> account = (Map<String, String>) result;
                 Opportunity opp = new Opportunity();
                 
-                // String balanceString = (String) account.get('balance');
+                opp.Block_Number__c = (Integer) Integer.valueOf(account.get('blockNumber'));
+                opp.Time_Stamp__c = (Datetime) Datetime.newInstance(Long.valueOf(account.get('timeStamp')));
+                opp.Hash__c = (String) account.get('hash');
+                opp.Nonce__c = (Integer) Integer.valueOf(account.get('nonce'));
+                opp.Block_Hash__c = (String) account.get('blockHash');
+                opp.Transaction_Index__c = (Integer) Integer.valueOf(account.get('nonce'));
+                opp.From_Address__c = (String) account.get('from');
+                opp.To_Address__c = (String) account.get('to');
+                opp.Transaction_Amount__c = (Decimal) toEth(account.get('value'));
+                opp.Gas_Price_in_Eth__c = (Decimal) toEth(account.get('gasPrice'));
+                opp.isError__c = (Boolean) Boolean.valueOf(account.get('isError'));
+                opp.Transaction_Receipt_Status__c = (Boolean) Boolean.valueOf(account.get('txreceipt_status'));
+                opp.Input__c = (String) account.get('input');
+                opp.Contract_Address__c = (String) account.get('contractAddress');
+                opp.Cumulative_Gas_Used__c = (Integer) Integer.valueOf(account.get('cumulativeGasUsed'));
+                opp.Gas_Used__c = (Integer) Integer.valueOf(account.get('gasUsed'));
+                opp.Confirmations__c = (Integer) Integer.valueOf(account.get('confirmations'));
 
-                // String accountNumberString = (String) account.get('account');
-
-                // Account accountBalance = new Account(Account_Balance_String__c = balanceString, Name=accountNumberString);
-
-                // accountsToUpsert.add(accountBalance);
+                opportunitiesToInsert.add(opp);
             }
 
-            if(!accountsToUpsert.isEmpty()) {
+            if(!opportunitiesToInsert.isEmpty()) {
                 try {
-                    upsert accountsToUpsert;
+                    insert opportunitiesToInsert;
                 } catch (DMLException e) {
                     ApexPages.addMessages(e);
 
