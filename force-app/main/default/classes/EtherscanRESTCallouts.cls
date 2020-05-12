@@ -110,7 +110,7 @@ public class EtherscanRESTCallouts {
     }
 
     @future(callout=true)
-    public static void accountTransactions(String accountNumber) {
+    public static void accountTransactions(String accountNumber, Id accountId) {
         accountAddress = accountNumber;
         Http http = new Http();
         HttpRequest request = new HttpRequest();
@@ -140,13 +140,14 @@ public class EtherscanRESTCallouts {
                 opp.Transaction_Amount__c = (Decimal) toEth(account.get('value'));
                 opp.Gas_Price_in_Eth__c = (Decimal) toEth(account.get('gasPrice'));
                 opp.isError__c = (Boolean) Boolean.valueOf(account.get('isError'));
-                opp.Transaction_Receipt_Status__c = (Boolean) Boolean.valueOf(account.get('txreceipt_status'));
+                opp.Transaction_Rec__c = (Boolean) Boolean.valueOf(account.get('txreceipt_status'));
                 opp.Input__c = (String) account.get('input');
                 opp.Contract_Address__c = (String) account.get('contractAddress');
                 opp.Cumulative_Gas_Used__c = (Integer) Integer.valueOf(account.get('cumulativeGasUsed'));
                 opp.Gas_Used__c = (Integer) Integer.valueOf(account.get('gasUsed'));
                 opp.Confirmations__c = (Integer) Integer.valueOf(account.get('confirmations'));
-
+                opp.AccountId = accountId;
+                
                 opportunitiesToInsert.add(opp);
             }
 
