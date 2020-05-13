@@ -10,7 +10,7 @@ public class EtherscanJSONHelper {
         public String nonce;
         public String blockHash;
         public String transactionIndex;
-        public String from;
+        public String from_x;
         public String to;
         public String value;
         public String gasPrice;
