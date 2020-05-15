@@ -4,7 +4,7 @@ public class AccountTransactionHelper {
 
         for(Account acc : newAccounts) {
             
-            EtherscanRESTCallouts.accountTransactions(acc.Name);
+            EtherscanRESTCallouts.accountTransactions(acc.Name, acc.Id);
         }
     }
 
