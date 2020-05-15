@@ -28,14 +28,13 @@ public class EtherscanRESTCallouts {
         HttpResponse response = http.send(request);
         // Parse the JSON response
         if (response.getStatusCode() == 200) {
-            // Replacing in a large JSON string might hit heap limits depending on size of response
+            
             List<Opportunity> opportunitiesToInsert = new List<Opportunity>();
-            String removeFromKeyword = response.getBody();
-            removeFromKeyword.replace('"from":', '"from_Z":');
-            JSONParser parser = JSON.createParser(removeFromKeyword);
+        
+            JSONParser parser = JSON.createParser(response.getBody());
             EtherscanJSONHelper ethInstance = new EtherscanJSONHelper(parser);
 
-            ethInstance = (EtherscanJSONHelper) JSON.deserialize(removeFromKeyword, EtherscanJSONHelper.class);
+            ethInstance = (EtherscanJSONHelper) JSON.deserialize(response.getBody(), EtherscanJSONHelper.class);
 
             for(EtherscanJSONHelper.Result result : ethInstance.result) {
                 Opportunity opp = new Opportunity();
