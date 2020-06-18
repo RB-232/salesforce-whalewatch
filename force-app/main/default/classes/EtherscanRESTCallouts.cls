@@ -1,28 +1,17 @@
-public class EtherscanRESTCallouts {
-
-    private static String accountAddress;
-
-    private static final API_Token__mdt API_RECORD = [SELECT API_Token__c, MasterLabel FROM API_Token__mdt WHERE MasterLabel = 'Etherscan' WITH SECURITY_ENFORCED];
-
-    private static final String SINGLE_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balance&' + 
-                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5&tag=latest&apikey=' + API_RECORD.API_Token__c;
-    private static final String MULTI_ACCOUNT_BALANCE = 'https://api.etherscan.io/api?module=account&action=balancemulti&' + 
-                                                        'address=0x267f70f9b856de226fea5fc1b0a8e319c72ceff5,0x1b3cb81e51011b549d78bf720b0d924ac763a7c2,0x73bceb1cd57c711feac4224d062b0f6ff338501e&tag=latest&apikey=' + API_RECORD.API_Token__c;                                                    
-    private static final String ACCOUNT_TRANSACTIONS = 'https://api.etherscan.io/api?module=account&action=txlist&' + 
-                                                        'address=' + accountAddress + '&startblock=0&endblock=99999999&sort=asc&apikey=' + API_RECORD.API_Token__c;
+public class EtherscanRESTCallouts {                                                 
 
     private static Decimal toEth(String wei) {
-        Decimal ethAmount = Decimal.valueOf(wei).divide(10^18, 2, System.RoundingMode.UP);
+    
+        Decimal ethAmount = Decimal.valueOf(wei).divide(Math.pow(10, 18), 2, System.RoundingMode.UP);
 
         return ethAmount;
     }
 
     @future(callout=true)
-    public static void accountTransactions(String accountNumber, Id accountId) {
-        accountAddress = accountNumber;
+    public static void accountTransactions(Id accId, String endpoint) {
         Http http = new Http();
         HttpRequest request = new HttpRequest();
-        request.setEndpoint(ACCOUNT_TRANSACTIONS);
+        request.setEndpoint(endpoint);
         request.setMethod('GET');
         request.setHeader('Content-Type', 'application/json;charset=UTF-8');
         HttpResponse response = http.send(request);
@@ -34,13 +23,18 @@ public class EtherscanRESTCallouts {
             JSONParser parser = JSON.createParser(response.getBody());
             EtherscanJSONHelper ethInstance = new EtherscanJSONHelper(parser);
 
-            ethInstance = (EtherscanJSONHelper) JSON.deserialize(response.getBody(), EtherscanJSONHelper.class);
-
+            Integer count = 1;
             for(EtherscanJSONHelper.Result result : ethInstance.result) {
                 Opportunity opp = new Opportunity();
-                
-                opp.Block_Number__c = Integer.valueOf(result.blockHash);
-                opp.Time_Stamp__c = Datetime.newInstance(Long.valueOf(result.timeStamp));
+
+                Datetime convertedTimeStamp = Datetime.newInstance(Long.valueOf(result.timeStamp));
+                Date dateFromTimeStamp = Date.newInstance(convertedTimeStamp.year(), convertedTimeStamp.month(), convertedTimeStamp.day());
+
+                opp.Name = 'Transaction ' + count++;
+                opp.CloseDate = dateFromTimeStamp;
+                opp.StageName = 'Closed';
+                opp.Block_Number__c = Integer.valueOf(result.blockNumber);
+                opp.Time_Stamp__c = convertedTimeStamp;
                 opp.Hash__c = result.hash;
                 opp.Nonce__c = Integer.valueOf(result.nonce);
                 opp.Block_Hash__c = result.blockHash;
@@ -48,6 +42,7 @@ public class EtherscanRESTCallouts {
                 opp.From_Address__c = result.from_Z;
                 opp.To_Address__c = result.to;
                 opp.Transaction_Amount__c = toEth(result.value);
+                opp.Gas__c = Integer.valueOf(result.gas);
                 opp.Gas_Price_in_Eth__c = toEth(result.gasPrice);
                 opp.isError__c = Boolean.valueOf(result.isError);
                 opp.Transaction_Rec__c = Boolean.valueOf(result.txreceipt_status);
@@ -56,7 +51,7 @@ public class EtherscanRESTCallouts {
                 opp.Cumulative_Gas_Used__c = Integer.valueOf(result.cumulativeGasUsed);
                 opp.Gas_Used__c = Integer.valueOf(result.gasUsed);
                 opp.Confirmations__c = Integer.valueOf(result.confirmations);
-                opp.AccountId = accountId;
+                opp.AccountId = accId;
 
                 opportunitiesToInsert.add(opp);
             }
@@ -65,8 +60,6 @@ public class EtherscanRESTCallouts {
                 try {
                     insert opportunitiesToInsert;
                 } catch (DMLException e) {
-                    ApexPages.addMessages(e);
-
                     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                     String[] toAddresses = new String[] {'djrdev@icloud.com'};
                     mail.setToAddresses(toAddresses);
