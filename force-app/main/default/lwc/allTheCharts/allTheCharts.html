@@ -1,0 +1,50 @@
+<template>
+    <div class="body">
+        <section class="media-section">
+            <article key={card.id} class="media-card">
+                <h5 class="media-title">Immediate Assistance</h5>
+                <p class="media">Residential: 800-895-4999</p>
+                <p class="media">Business: 800-481-4700</p>
+            </article>
+            <article key={card.id} class="media-card">
+                <h5 class="media-title">State Contacts</h5>
+                <p class="media">Corportate: 612-330-6581</p>
+                <p class="media">Colorado: 303-294-2300</p>
+                <p class="media">Michigan: 715-737-2565</p>
+                <p class="media">Minnesota: 612-215-5300</p>
+                <p class="media">New Mexico: 806-378-2714</p>
+                <p class="media">North Dakota: 701-371-5254</p>
+                <p class="media">South Dakota: 605-366-1265</p>
+                <p class="media">Texas: 806-378-2714</p>
+                <p class="media">Wisconson: 715-737-2565</p>
+            </article>
+            <article key={card.id} class="media-card">
+                <h5 class="media-title">Corporate Assets</h5>
+                <p class="media">Brand asset request</p>
+                <p class="media">Corporate media inquiries</p>
+            </article>
+        </section>
+        <section>
+            <section class="search"></section>
+            <template for:each={data} for:item="article">
+                <article key={article.id} class="article">
+                    <p class="article-date"></p>
+                    <h3 class="article-title"></h3>
+                    <p class="article-body"></p>
+                </article>
+            </template>
+        </section>
+        <section>
+            <section class="search">
+                
+            </section>
+            <template for:each={data} for:item="article">
+                <article key={article.id} class="article">
+                    <p class="article-date"></p>
+                    <h3 class="article-title"></h3>
+                    <p class="article-body"></p>
+                </article>
+            </template>
+        </section>
+    </div>
+</template>
