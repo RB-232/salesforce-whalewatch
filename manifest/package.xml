@@ -32,5 +32,28 @@
         <members>*</members>
         <name>StaticResource</name>
     </types>
-    <version>48.0</version>
+    <types>
+        <members>Account.Account_Balance__c</members>
+        <members>Account.Account_Balance_String__c</members>
+        <members>Opportunity.Block_Hash__c</members>
+        <members>Opportunity.Block_Number__c</members>
+        <members>Opportunity.Confirmations__c</members>
+        <members>Opportunity.Contract_Address__c</members>
+        <members>Opportunity.Cumulative_Gas_Used__c</members>
+        <members>Opportunity.From_Address__c</members>
+        <members>Opportunity.Gas__c</members>
+        <members>Opportunity.Gas_Price_in_Eth__c</members>
+        <members>Opportunity.Gas_Price_in_Wei__c</members>
+        <members>Opportunity.Hash__c</members>
+        <members>Opportunity.Input__c</members>
+        <members>Opportunity.isError__c</members>
+        <members>Opportunity.Nonce__c</members>
+        <members>Opportunity.Time_Stamp__c</members>
+        <members>Opportunity.To_Address__c</members>
+        <members>Opportunity.Transaction_Amount__c</members>
+        <members>Opportunity.Transaction_Index__c</members>
+        <members>Opportunity.Transaction_Rec__c</members>
+        <name>CustomField</name>
+    </types>
+    <version>52.0</version>
 </Package>

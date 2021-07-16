@@ -1,9 +1,9 @@
 public class EtherscanRESTCallouts {                                                 
 
     private static Decimal toEth(String wei) {
-    
+        System.debug(wei);
         Decimal ethAmount = Decimal.valueOf(wei).divide(Math.pow(10, 18), 2, System.RoundingMode.UP);
-
+        System.debug(ethAmount);
         return ethAmount;
     }
 
